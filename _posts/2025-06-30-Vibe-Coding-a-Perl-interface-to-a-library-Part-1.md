@@ -1,6 +1,6 @@
 ---
 title: "Vibe coding a Perl interface to a foreign library- Part 1"
-date: 2025-06-29
+date: 2025-06-30
 ---
 
 $${\color{red}Introduction}$$
@@ -767,10 +767,14 @@ covers all the core functionality while being extensible for additional features
 
 $${\color{red}My \space critique \space of \space Claude's \space choices}$$
 
-In this first post, we will not consider the implementation(s) which will be covered in separate posts, but will restrict ourselves to Claude's output with respect to the other questions. 
-I give it bonus points for clearly identifying the niches for each potential choice (in particular how [SWIG](https://www.swig.org/) can support wrapping for other languages) and the use of the Foreign Function Interfce for linking to the dynamic library for intermediate users. 
-That an experienced programmer would opt for XS is not a surprise at all. However, the choice of Inline for the intermediate user is head-scratching: it seems that the chatbot closed on the intermediate level of programming experience in the prompt, and the selection of the approach was driven entirely by the fact that the user could (presumably) do more stuff in C. 
-Of interest, the SWIG solution was not considered as suitable (perhaps because few people in the training databases use SWIG). Without going into the specifics of the implementation though, I'd feel comfortable opting for FFI as an initial step for largely the reasons identified by Claude. We will have more things to say about the FFI implementation in the subsequent post in this series.
+In this first post, we will not consider the implementation(s) which will be covered in separate posts, but will restrict ourselves to Claude's output with respect to the other questions. I give Claude bonus points for clearly identifying the niches for each potential choice:
+1.  Highighting that [SWIG](https://www.swig.org/) can support wrapping for other languages)
+2.  Proposing Foreign Function Interface for linking to the dynamic library for beginners.
+3.  A experienced programmer would opt for XS is not a surprise at all.
+  
+However:
+* the choice of Inline for the intermediate user is head-scratching: it seems that the chatbot closed on the intermediate level of programming experience in the prompt, and the selection of the approach was driven entirely by the fact that the user could (presumably) do more stuff in C.
+* SWIG was not considered as suitable (perhaps because few people in the training databases use SWIG) for implementing at any level. Without going into the specifics of the implementation though, I'd feel comfortable opting for FFI as an initial step for largely the reasons identified by Claude. We will have more things to say about the FFI implementation in the subsequent post in this series.
 
 [^1]:Note, I did not use the word understanding, as I do not think that LLMs can understant: they are merely noisy statistical pattern generators that can be tasked to create rough solutions for refining.
 I alerted the bot to the (substantial) risk of hallucinations and decreased 
