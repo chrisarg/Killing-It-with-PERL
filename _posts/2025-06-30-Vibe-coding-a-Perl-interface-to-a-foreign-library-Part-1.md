@@ -3,7 +3,7 @@ title: "Vibe coding a Perl interface to a foreign library- Part 1"
 date: 2025-06-30
 ---
 
-$${\color{red}Introduction}$$
+# Introduction
 
 In this multipart series we will explore the benefits (and pitfalls) of vibe coding a Perl interface to an external (or foreign) library through a large language model. 
 Those of you who follow me on X/Twitter (as [@ChristosArgyrop](https://x.com/ChristosArgyrop) and [@ArgyropChristos](https://x.com/ArgyropChristos)),
@@ -26,7 +26,7 @@ an Abstract Data Type in C; a crucial aspect of the implementation is to manage 
 For our experiments we will use Claude 3.7 Thinking Sonnet through the Github Copilot _vscode_ interface. This is going to be a multipart series post that will be published throughout the summer. 
 Our focus will be on interactions between me and the bot, and in particular critiquing the responses it has given me for both high level (e.g. choice of approach) and technical aspects of the project.
 
-$${\color{red}The \space Prompt}$$
+# The Prompt
 
 
 For the prompt I provided the "bit.c", "bit.h", makefile and the readme file of the Bit github repository as context to Claude and then I issued the following:
@@ -69,7 +69,9 @@ Furthermore, I guided it to consider alternative viewpoints and level of experti
 representation[^1] of conversations about wrappers. Finally, I alerted the chatbot to consider the token-sequence length dependent risk of hallucinations and
 tried to limit the length of the output of the alternative implementations. 
 
-$${\color{red}Claude's \space Response}$$
+# Claude's Response
+The output based on this prompt is shown below (inside the horizontal lines);  the formatting was also part of the output
+___
 
 # Perl Wrapper for Bit_T and Bit_T_DB C Library
 
@@ -763,9 +765,9 @@ performance, and maintainability. It works well with your existing dynamic libra
 provides a clean, object-oriented interface to the Bit_T and Bit_T_DB types. The implementation provided 
 covers all the core functionality while being extensible for additional features as needed.
 
+___
 
-
-$${\color{red}My \space critique \space of \space Claude's \space choices}$$
+# My critique of Claude's choices
 
 In this first post, we will not consider the implementation(s) which will be covered in separate posts, but will restrict ourselves to Claude's output with respect to the other questions. I give Claude bonus points for clearly identifying the niches for each potential choice:
 1.  Highighting that [SWIG](https://www.swig.org/) can support wrapping for other languages)
