@@ -441,10 +441,10 @@ Looking at the code and the explanation, it seens that Claude is "getting" it a 
 # Conclusions
 
 Despite all the hype out there about AI assisted coding, there are several potential pitfalls for the end user:
-1. The tools require substantial subject matter (and guidance) to deliver a good result
-2. The widespread assumption that a non technically experienced end user can achieve God status with these tools is unfounded (contrast the difference betweeen Claude's initial and final solution)
+1. The chatbot tools require substantial subject matter (and guidance) to deliver a good result
+2. The widespread assumption that a non technically experienced end user can achieve God status with these tools is unfounded (contrast the difference between Claude's initial and final solution)
 3. Even after multiple prompting and interactions to refine the solution, key elements (e.g. the cleanup) will be missing in action
-4. Constant vigilance is required 
+4. Constant vigilance for hallucinations, omissions and biases  is required 
 
 At the end though, I was happy (for now!) with the Claude modifications of my `alienfile`, and I ended up replacing my own in the `Alien::Bit` package (after adding the cleanup code!) 
 
