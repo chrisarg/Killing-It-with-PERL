@@ -244,173 +244,197 @@ probe sub { 'share' };
 
 share {
     # Import necessary modules
-    use Path::Tiny qw( path );
+    use Path::Tiny            qw( path );
     use File::Copy::Recursive qw( dircopy fcopy );
-    use Carp qw( croak );
-    
+    use Carp                  qw( croak );
+
     # Set source repository information
-    my $repo_url = 'https://github.com/chrisarg/Bit/archive/refs/heads/master.zip';
-    
+    my $repo_url =
+      'https://github.com/chrisarg/Bit/archive/refs/heads/master.zip';
+
     # Configure download
     start_url $repo_url;
     plugin 'Download';
     plugin 'Extract' => 'zip';
-    
+
     # Build configuration
     plugin 'Build::Make';
-    
+
     # Define build commands
     build [
         # Standard build process
         ['%{make}'],
-        
+
         # This builds the test program too
         ['%{make} test'],
-        
+
         # This builds the benchmark programs
         ['%{make} bench']
     ];
-    
+
     # Post-build file handling - copy files to staging directory
     after 'build' => sub {
         my ($build) = @_;
-        
+
         # Determine destination directory
-        my $stage_dir = path($build->install_prop->{stage});
-        my $source_dir = path($build->install_prop->{extract});
-        
+        my $stage_dir  = path( $build->install_prop->{stage} );
+        my $source_dir = path( $build->install_prop->{extract} );
+
         # Create lib and include directories
-        my $lib_dir = $stage_dir->child('lib');
+        my $lib_dir     = $stage_dir->child('lib');
         my $include_dir = $stage_dir->child('include');
         $lib_dir->mkpath;
         $include_dir->mkpath;
-        
+
         # Copy shared library to lib directory
         my $build_dir = $source_dir->child('build');
         my @libs;
-        
+
         # Handle different platform library extensions
-        if ($^O eq 'MSWin32') {
-            @libs = $build_dir->children(qr/\.dll$/);
+        if ( $^O eq 'MSWin32' ) {
+            @libs = $build_dir->children(qr/\.(dll|lib)$/);
         }
-        elsif ($^O eq 'darwin') {
-            @libs = $build_dir->children(qr/\.dylib$/);
+        elsif ( $^O eq 'darwin' ) {
+            @libs = $build_dir->children(qr/\.(dylib|a)$/);
         }
         else {
-            @libs = $build_dir->children(qr/\.so$/);
+            @libs = $build_dir->children(qr/\.(so|a)$/);
         }
-        
+
         # Copy each library file
         foreach my $lib (@libs) {
-            my $dest = $lib_dir->child($lib->basename);
+            my $dest = $lib_dir->child( $lib->basename );
             $lib->copy($dest) or croak "Failed to copy $lib to $dest: $!";
             print "Copied library: ", $lib->basename, "\n";
         }
-        
+
         # Copy test and benchmark executables
         my @executables;
-        if ($^O eq 'MSWin32') {
+        if ( $^O eq 'MSWin32' ) {
             @executables = $build_dir->children(qr/\.(exe)$/);
-        } else {
-            @executables = grep { -x $_ && ! -d $_ && $_->basename !~ /\.(so|dylib|dll|o|a)$/ } 
-                           $build_dir->children;
         }
-        
+        else {
+            @executables = grep {
+                     -x $_
+                  && !-d $_
+                  && $_->basename !~ /\.(so|dylib|dll|o|a)$/
+            } $build_dir->children;
+        }
+
         foreach my $exe (@executables) {
-            my $dest = $lib_dir->child($exe->basename);
+            my $dest = $lib_dir->child( $exe->basename );
             $exe->copy($dest) or croak "Failed to copy $exe to $dest: $!";
-            chmod 0755, $dest; # Ensure executable permissions
+            chmod 0755, $dest;    # Ensure executable permissions
             print "Copied executable: ", $exe->basename, "\n";
         }
-        
+
         # Copy header files
         my $headers_dir = $source_dir->child('include');
-        my @headers = $headers_dir->children(qr/\.h$/);
-        
+        my @headers     = $headers_dir->children(qr/\.h$/);
+
         foreach my $header (@headers) {
-            my $dest = $include_dir->child($header->basename);
+            my $dest = $include_dir->child( $header->basename );
             $header->copy($dest) or croak "Failed to copy $header to $dest: $!";
             print "Copied header: ", $header->basename, "\n";
         }
     };
-    
+
     # Set runtime properties for client code
     gather sub {
         my ($build) = @_;
         my $prefix = $build->runtime_prop->{prefix};
-        
+
         # Set include and library paths
-        my $include_dir = path($prefix, 'include')->stringify;
-        my $lib_dir = path($prefix, 'lib')->stringify;
-        
+        my $include_dir = path( $prefix, 'include' )->stringify;
+        my $lib_dir     = path( $prefix, 'lib' )->stringify;
+
         # Set compiler flags
         $build->runtime_prop->{cflags} = "-I$include_dir";
-        
+
         # Set linker flags with appropriate library name
         $build->runtime_prop->{libs} = "-L$lib_dir -lbit";
-        
+
         # Store raw paths for Platypus FFI
-        $build->runtime_prop->{ffi_name} = "bit";
+        $build->runtime_prop->{ffi_name}    = "bit";
         $build->runtime_prop->{include_dir} = $include_dir;
-        $build->runtime_prop->{lib_dir} = $lib_dir;
-        
+        $build->runtime_prop->{lib_dir}     = $lib_dir;
+
         # Print confirmation
         print "Alien::Bit configured with:\n";
-        print "  cflags: ", $build->runtime_prop->{cflags}, "\n";
-        print "  libs: ", $build->runtime_prop->{libs}, "\n";
-        print "  ffi_name: ", $build->runtime_prop->{ffi_name}, "\n";
+        print "  cflags: ",      $build->runtime_prop->{cflags},      "\n";
+        print "  libs: ",        $build->runtime_prop->{libs},        "\n";
+        print "  ffi_name: ",    $build->runtime_prop->{ffi_name},    "\n";
         print "  include_dir: ", $build->runtime_prop->{include_dir}, "\n";
-        print "  lib_dir: ", $build->runtime_prop->{lib_dir}, "\n";
+        print "  lib_dir: ",     $build->runtime_prop->{lib_dir},     "\n";
     };
-    
+
     # Run tests after installation
     test sub {
         my ($build) = @_;
-        my $lib_dir = path($build->install_prop->{stage}, 'lib');
-        
+        my $lib_dir = path( $build->install_prop->{stage}, 'lib' );
+
         # Define test executable names based on platform
-        my $test_exe = $^O eq 'MSWin32' ? 'test_bit.exe' : 'test_bit';
-        my $bench_exe = $^O eq 'MSWin32' ? 'benchmark.exe' : 'benchmark';
+        my $test_exe   = $^O eq 'MSWin32' ? 'test_bit.exe'   : 'test_bit';
+        my $bench_exe  = $^O eq 'MSWin32' ? 'benchmark.exe'  : 'benchmark';
         my $openmp_exe = $^O eq 'MSWin32' ? 'openmp_bit.exe' : 'openmp_bit';
-        
+
         # Get full paths
-        my $test_path = $lib_dir->child($test_exe);
-        my $bench_path = $lib_dir->child($bench_exe);
+        my $test_path   = $lib_dir->child($test_exe);
+        my $bench_path  = $lib_dir->child($bench_exe);
         my $openmp_path = $lib_dir->child($openmp_exe);
-        
+
         # Run main tests if available
-        if (-x $test_path) {
+        if ( -x $test_path ) {
             print "\n**************** Running Bit Tests ****************\n";
             my $test_output = `$test_path 2>&1`;
             print $test_output;
-            
-            if ($test_output =~ /All tests passed/m) {
-                print "\n**************** Bit tests passed successfully ****************\n";
-            } else {
+
+            if ( $test_output =~ /All tests passed/m ) {
+                print
+"\n**************** Bit tests passed successfully ****************\n";
+            }
+            else {
                 croak("Bit tests failed");
             }
-        } else {
+        }
+        else {
             print "Test executable not found at $test_path - skipping tests\n";
         }
-        
-        # Run benchmarks if available
-        if (-x $bench_path) {
-            print "\n**************** Running Bit Benchmarks ****************\n";
+        unlink $test_path;    # Clean up test executable
+                              # Run benchmarks if available
+        if ( -x $bench_path ) {
+            print
+              "\n**************** Running Bit Benchmarks ****************\n";
             my $bench_output = `$bench_path 2>&1`;
             print $bench_output;
-        } else {
-            print "Benchmark executable not found at $bench_path - skipping benchmarks\n";
+            unlink $bench_path;    # Clean up benchmark executable
         }
-        
+        else {
+            print
+"Benchmark executable not found at $bench_path - skipping benchmarks\n";
+        }
+
         # Run OpenMP benchmarks if available
-        if (-x $openmp_path) {
-            print "\n**************** Running Bit OpenMP Benchmarks ****************\n";
+        if ( -x $openmp_path ) {
+            print
+"\n**************** Running Bit OpenMP Benchmarks ****************\n";
             my $openmp_output = `$openmp_path 1024 1000 1000 4 2>&1`;
             print $openmp_output;
-        } else {
-            print "OpenMP benchmark executable not found at $openmp_path - skipping OpenMP benchmarks\n";
+            unlink $openmp_path;    # Clean up OpenMP benchmark executable
+        }
+        else {
+            print
+"OpenMP benchmark executable not found at $openmp_path - skipping OpenMP benchmarks\n";
+        }
+
+        # delete object files that end in .o
+        my @object_files = $lib_dir->children(qr/\.o$/);
+        foreach my $obj_file (@object_files) {
+            $obj_file->remove;
+            print "Removed object file: ", $obj_file->basename, "\n";
         }
     };
+
 };
 ```
 
@@ -444,7 +468,7 @@ Despite all the hype out there about AI assisted coding, there are several poten
 1. The chatbot tools require substantial subject matter expertise (and guidance) to deliver a good result
 2. The widespread assumption that a non technically experienced end user can achieve God status with these tools is unfounded (contrast the difference between Claude's initial and final solution)
 3. Even after multiple prompting and interactions to refine the solution, key elements (e.g. the cleanup) will be missing in action
-4. Constant vigilance for hallucinations, omissions and biases  is required 
+4. Constant vigilance for hallucinations, omissions and biases  is required[^5] 
 
 At the end though, I was happy (for now!) with the Claude modifications of my `alienfile`, and I ended up replacing my own in the `Alien::Bit` package (after adding the cleanup code!) 
 
@@ -452,4 +476,5 @@ At the end though, I was happy (for now!) with the Claude modifications of my `a
 [^2]: This is usually a `Makefile.PL` or `Build.PL` or in my case a  dist.ini since I am making `Perl` modules using [Dist::Zila](https://metacpan.org/pod/Dist::Zilla)
 [^3]: In our case this is the `makefile`, but `Aliens` can use `Cmake`, `Meson` and other build systems
 [^4]: I don't use `Alien`s' github plugins for this, because I may be switching to gitlab in the near future
+[^5]: The regex that copies static and dynamic libraries was also missed by the chatbot, and I had to manually insert prior to release. This omission by Claude was missed in a previous release of this github page
 
