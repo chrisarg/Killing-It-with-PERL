@@ -53,7 +53,7 @@ markdown file. The prompt used was the following:
     4. When implementing a function, do provide the POD documentation for it. 
     However, generate the POD after you have implemented the functions.
     5. After you have implemented the modules, generate a simple test that will 
-    generate a C<Bit::Set> of capacity of 1024 bits, set the first, second and 5th one 
+    generate a Bit::Set of capacity of 1024 bits, set the first, second and 5th one 
     and see if the popcount is equal to 3.
 ```
 Claude did get *most* things right:
