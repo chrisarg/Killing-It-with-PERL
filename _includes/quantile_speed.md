@@ -13,15 +13,15 @@ data <- as.data.frame(fread(csv_file,header=FALSE))[,1]
 
 probvector<-seq(0,1,by=1/n_quantiles);
 summary<-benchmark(
-  "vec1"={quantile(data,probs=probvector,type=1)},
-  "vec2"={quantile(data,probs=probvector,type=2)},
-  "vec3"={quantile(data,probs=probvector,type=3)},
-  "vec4"={quantile(data,probs=probvector,type=4)},
-  "vec5"={quantile(data,probs=probvector,type=5)},
-  "vec6"={quantile(data,probs=probvector,type=6)},
-  "vec7"={quantile(data,probs=probvector,type=7)},
-  "vec8"={quantile(data,probs=probvector,type=8)},
-  "vec9"={quantile(data,probs=probvector,type=9)},
+  "pct_R_1"={quantile(data,probs=probvector,type=1)},
+  "pct_R_2"={quantile(data,probs=probvector,type=2)},
+  "pct_R_3"={quantile(data,probs=probvector,type=3)},
+  "pct_R_4"={quantile(data,probs=probvector,type=4)},
+  "pct_R_5"={quantile(data,probs=probvector,type=5)},
+  "pct_R_6"={quantile(data,probs=probvector,type=6)},
+  "pct_R_7"={quantile(data,probs=probvector,type=7)},
+  "pct_R_8"={quantile(data,probs=probvector,type=8)},
+  "pct_R_9"={quantile(data,probs=probvector,type=9)},
   "sort_quick" = {sort( data, method = "quick")},
   "sort_shell" = {sort( data, method = "shell")},
   "sort_radix" = {sort( data, method = "radix")},
@@ -30,5 +30,5 @@ columns = c(
       "test", "replications", "elapsed"))
 
 rownames(summary)<-summary$test;
-write.csv(summary[c(paste("vec", 1:9, sep=""),"sort_quick","sort_shell","sort_radix"),], file=summary_file, row.names=FALSE)
+write.csv(summary[c(paste("pct_R_", 1:9, sep=""),"sort_quick","sort_shell","sort_radix"),], file=summary_file, row.names=FALSE)
 ```
