@@ -76,4 +76,4 @@ As can be seen from the table, the sorting operations account mostly for the bul
 
 Two major takehome points:
 1) don't be afraid to look under the hood/inside the blackbox when performance is surprisingly disappointing!
-2) be careful of broadcasting operations in `PDL`\`NumPy`\`Matlab`
+2) be careful of broadcasting operations in `PDL`, `NumPy`, or `Matlab`.
