@@ -42,7 +42,7 @@ sub quantile_type_3 {
     my $sorted_data = $data->qsort;
     my $nelem       = $data->nelem;
     my $cum_ranks   = floor( $pct * $nelem );
-    $data->index($cum_ranks);
+    $sorted_data->index($cum_ranks);
 }
 ```
 (The other quantiles can be implemented equally trivially using affine operations as explained in `R`'s documentation of the [quantile](https://www.rdocumentation.org/packages/stats/versions/3.6.2/topics/quantile) function).
