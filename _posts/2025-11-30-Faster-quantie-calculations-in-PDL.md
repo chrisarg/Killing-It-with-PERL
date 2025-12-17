@@ -3,7 +3,7 @@ title: "Faster quantile calculations in the Perl Data Language(PDL)"
 date: 2025-11-30
 ---
 
-I was writing a data intensive code in `Perl` relying heavily on `PDL` for some statitical calculations (estimation of percentile points in some very BIG vectors, e.g. 100k to 1B elements), when 
+I was writing a data intensive code in `Perl` relying heavily on `PDL` for some statistical calculations (estimation of percentile points in some very BIG vectors, e.g. 100k to 1B elements), when 
 I noticed that PDL was taking a very (and unusually long!) time to produce results compared to my experience in Python.
 This happened irrespective of whether one used the `pct` or `oddpct` functions in [PDL::Ufunc](https://metacpan.org/pod/PDL::Ufunc). 
 
